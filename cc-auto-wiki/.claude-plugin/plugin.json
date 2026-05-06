@@ -1,0 +1,9 @@
+{
+  "name": "cc-auto-wiki",
+  "description": "Auto-captures Claude Code conversations as Karpathy-style raw sources, then compiles them into a persistent project wiki on demand.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jonathan Doron"
+  },
+  "license": "MIT"
+}
