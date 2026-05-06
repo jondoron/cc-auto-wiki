@@ -27,7 +27,11 @@ The following describes what to extract from Claude Code conversations and what 
 The wiki has three layers:
 
 1. `raw/sessions/` — immutable raw sources produced by capture. Never edit by hand. Filenames follow `YYYY-MM-DD-HHMM-<session-short>.md`.
-2. `wiki/` — the synthesized knowledge base, owned and maintained by the compile step. Subdirectories: `decisions/`, `concepts/`, `entities/`. Add more as the wiki grows.
+2. `wiki/` — the synthesized knowledge base, owned and maintained by the compile step. Categories (each is a subdirectory under `wiki/`):
+
+<!-- {{categories_block}} -->
+
+   Add more subdirectories as the wiki grows. The compile sub-agent uses the descriptions above to decide where new pages go, so keep them specific.
 3. `index.md` and `log.md` at the wiki root.
 
 ## Page conventions
@@ -36,7 +40,7 @@ The wiki has three layers:
   ```yaml
   ---
   title: <page title>
-  type: decision | concept | entity
+  type: <one of the categories listed above, singular form preferred (e.g., `decision` for `decisions/`)>
   created: YYYY-MM-DD
   updated: YYYY-MM-DD
   sources: [<raw-source-filename>, ...]

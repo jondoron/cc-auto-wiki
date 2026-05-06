@@ -15,7 +15,7 @@ The user is in the loop. Surface decisions; don't barrel through.
    - Identify the wiki pages it touches: existing pages to update, new pages to create. Look up candidates in the index before creating new pages — avoid duplicates.
    - For each page:
      - If it exists, read it, then edit it to integrate the new material. Preserve existing structure and cross-references. When the new source contradicts an existing claim, do not silently overwrite — note both and flag the contradiction inline (e.g., a `> [!conflict]` callout) so the user can resolve it.
-     - If it doesn't exist, create it under the appropriate subdirectory (`wiki/decisions/`, `wiki/concepts/`, `wiki/entities/`, etc.) following the schema's frontmatter and link conventions.
+     - If it doesn't exist, create it under the appropriate category subdirectory under `wiki/`. The schema's `## Wiki structure` section is the source of truth for which categories exist and what each is for — read those descriptions and pick the best fit. If a page genuinely doesn't fit any existing category, do not invent a new one silently; place it in the closest fit and surface this in your findings so the user can decide whether to add a category. Follow the schema's frontmatter and link conventions.
    - Maintain cross-references: when page A mentions concept B, both should link to each other.
    - Update `<wiki-root>/index.md` to list any new pages with one-line summaries.
    - Mark the source compiled: edit the source's frontmatter to set `compiled: true` and add `compiled_at: <ISO timestamp>`.

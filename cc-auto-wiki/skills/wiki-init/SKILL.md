@@ -12,7 +12,7 @@ You are running the cc-auto-wiki first-run setup. Your job is to interactively c
 
 Read `.claude/settings.json` (it may not exist) and check whether an `cc-auto-wiki` key already exists. If it does, tell the user the current configured wiki root and ask whether they want to:
 - Keep it (exit the skill silently)
-- Reconfigure (continue with steps 2+, and warn that this will overwrite the schema's Capture guidance section if they edit it)
+- Reconfigure (continue with steps 2+). Warn that reconfiguring will overwrite the schema's Capture guidance and Wiki structure sections if they edit them. If the wiki already has content under existing category directories, do not delete those directories — note any categories that will become orphaned (i.e., no longer listed in the new schema) and tell the user so they can decide whether to remove them by hand.
 
 ### 2. Choose a wiki root
 
@@ -37,50 +37,89 @@ Aim for guidance that is **specific** — a single paragraph that another develo
 
 When you have something solid, read it back to the user and confirm before writing it to disk.
 
-### 4. Confirm gitignore behavior
+### 3.5. Propose a category layout
 
-Ask: "Should `<wiki-root>/raw/` be gitignored? Raw sources contain verbatim conversation excerpts that may include credentials or transient state — most users want them local-only, with only the compiled `wiki/` committed."
+The wiki organizes pages into top-level categories — each becomes a subdirectory under `<wiki-root>/wiki/`. The compile sub-agent uses these categories (and their descriptions in the schema) to decide where each new page goes.
 
-Default recommendation: yes, gitignore raw. Capture their choice as `raw_gitignored: true|false`.
+**Do not start from a generic default like decisions/concepts/entities.** Use the Capture guidance the user just gave you to propose a layout that fits *their* project. Re-read the guidance, then ask yourself: "If I were filing the kinds of things this user wants captured, what 3–6 buckets would I actually reach for?" Stay specific to their domain — avoid catch-all buckets like "notes" or "miscellaneous."
 
-### 5. Confirm and write
+A few shape examples to calibrate (do NOT copy these wholesale — they illustrate how to tailor to a domain):
 
-Summarize the four choices:
+- A regulated healthcare codebase might warrant: `compliance-decisions`, `phi-handling`, `auth-integrations`, `audit-runbooks`.
+- An HFT trading system might warrant: `latency-decisions`, `market-protocols`, `failover-runbooks`, `instrument-models`.
+- A research repo might warrant: `experiments`, `datasets`, `model-cards`, `findings`.
+
+Present your proposal as:
+
+```
+- <name>  — <one-line purpose tied back to the user's capture guidance>
+- <name>  — <...>
+- <name>  — <...>
+```
+
+Then ask the user to react: keep as-is, rename, edit a description, remove a category, add new ones. Iterate until they're satisfied. If the user pushes back on the whole shape ("none of this fits"), throw away the proposal and start fresh from their feedback rather than nudging them back toward your first draft.
+
+Rules for the final list:
+- At least one category must remain.
+- Each entry has a directory-safe name (lowercase, hyphens or underscores; no slashes or spaces). Reject names that would collide on case-insensitive filesystems.
+- Descriptions are strongly encouraged — without them, the compile step has only the directory name to infer placement from. If the user explicitly chooses to omit a description, accept the entry as-is rather than inventing one.
+- Preserve the user's wording when they edit a description (same rule as Capture guidance).
+
+Read the final list back and confirm before moving on.
+
+### 4. Confirm and write
+
+Summarize the choices:
 - Wiki root path
 - Capture guidance (the paragraph)
+- Category layout (the list of `name — description` entries)
 - Model for capture (default: `claude-haiku-4-5-20251001` — keep it cheap; capture runs on every session end)
-- Gitignore raw or not
 
 Once confirmed, perform the writes:
 
-**a. Create the directory tree.**
+**a. Create the directory tree.** Always create `<wiki-root>/raw/sessions/`. Then create one subdirectory under `<wiki-root>/wiki/` per chosen category, using its directory-safe name. For example, if the agreed categories are `experiments`, `datasets`, `findings`:
+
 ```
-mkdir -p <wiki-root>/{raw/sessions,wiki/{decisions,concepts,entities}}
+mkdir -p <wiki-root>/raw/sessions
+mkdir -p <wiki-root>/wiki/experiments <wiki-root>/wiki/datasets <wiki-root>/wiki/findings
 ```
 
-**b. Drop the templates.** Read `${CLAUDE_PLUGIN_ROOT}/templates/wiki-claude.md`, replace the `<!-- {{capture_guidance}} -->` marker AND the surrounding "The following describes…" placeholder text with the user's actual guidance paragraph, and write to `<wiki-root>/CLAUDE.md`. Then copy `${CLAUDE_PLUGIN_ROOT}/templates/index.md` and `templates/log.md` to `<wiki-root>/index.md` and `<wiki-root>/log.md`.
+If reconfiguring, do not delete pre-existing category directories that are no longer in the list — leave them and surface them to the user in step 5.
+
+**b. Drop the templates.**
+
+Read `${CLAUDE_PLUGIN_ROOT}/templates/wiki-claude.md` and produce `<wiki-root>/CLAUDE.md` by substituting two markers:
+
+- `<!-- {{capture_guidance}} -->` — replace this marker AND the surrounding "The following describes…" placeholder text with the user's actual guidance paragraph.
+- `<!-- {{categories_block}} -->` — replace with a bulleted list of the chosen categories. For each category, render one line of the form `   - \`<name>/\` — <description>` (three-space indent so it nests inside the numbered list). If a category has no description, render `   - \`<name>/\`` without the dash.
+
+Read `${CLAUDE_PLUGIN_ROOT}/templates/index.md` and produce `<wiki-root>/index.md` by substituting:
+
+- `<!-- {{category_sections}} -->` — replace with one second-level heading per category, in the user's chosen order. Use a sensible display title (capitalize the first letter of the directory name; turn hyphens/underscores into spaces — e.g., `post-mortems` → `Post mortems`). Under each heading, place `_(none yet)_`. Under the very first heading, instead place `_(none yet — run \`/cc-auto-wiki:compile\` after some captures have accumulated)_` so the hint shows up exactly once.
+
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/log.md` verbatim to `<wiki-root>/log.md`.
 
 **c. Update `.claude/settings.json`.** Add or merge the `cc-auto-wiki` key:
 ```json
 {
   "cc-auto-wiki": {
     "root": "<relative-wiki-root>",
-    "model": "<model>",
-    "raw_gitignored": <true|false>
+    "model": "<model>"
   }
 }
 ```
 Use `jq` via Bash to merge cleanly so any existing settings are preserved. Create the file with `{}` first if it doesn't exist.
 
-**d. Update `.gitignore` if requested.** Append `<wiki-root>/raw/` (or the absolute equivalent for the project) if `raw_gitignored` is true and the line isn't already present.
-
-### 6. Tell the user what's next
+### 5. Tell the user what's next
 
 Print a concise summary:
-- "Created wiki at `<path>`. Capture guidance is editable at `<path>/CLAUDE.md`."
+- "Created wiki at `<path>`. Capture guidance and the category layout are editable at `<path>/CLAUDE.md`."
+- "Categories: <comma-separated list>. Add or rename categories later by editing the `## Wiki structure` section of the schema and creating the directories under `<path>/wiki/`."
 - "Auto-capture will fire on `SessionEnd` and `PreCompact` going forward. The first capture will produce a file in `<path>/raw/sessions/`."
 - "Run `/cc-auto-wiki:compile` when you have a few captures and want to integrate them into the wiki proper."
 - "Run `/cc-auto-wiki:ingest` mid-session if you want to capture immediately."
+
+If reconfiguring left behind any pre-existing category directories no longer in the chosen list, name them and tell the user they were preserved so they can decide whether to delete them by hand.
 
 ## Rules
 

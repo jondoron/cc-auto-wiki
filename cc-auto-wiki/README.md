@@ -47,8 +47,7 @@ Mechanical settings live in `.claude/settings.json` under an `cc-auto-wiki` key:
 {
   "cc-auto-wiki": {
     "root": "wiki",
-    "model": "claude-haiku-4-5-20251001",
-    "raw_gitignored": true
+    "model": "claude-haiku-4-5-20251001"
   }
 }
 ```
@@ -63,11 +62,11 @@ Editorial direction — *what* to capture — lives in `<wiki-root>/CLAUDE.md` u
 ├── index.md            ← content catalog (compile maintains this)
 ├── log.md              ← chronological event log
 ├── raw/sessions/       ← staged raw sources (immutable)
-└── wiki/
-    ├── decisions/
-    ├── concepts/
-    └── entities/
+└── wiki/               ← category subdirectories chosen at init
+    └── …                ← named to fit your project
 ```
+
+There are no fixed default categories. During `/cc-auto-wiki:init` the agent reads your capture guidance and proposes a layout tailored to it (e.g., `compliance-decisions/`, `phi-handling/`, `audit-runbooks/` for a healthcare repo; `experiments/`, `datasets/`, `findings/` for a research repo); you refine that proposal until it fits. The compile sub-agent reads the `## Wiki structure` section of `<wiki-root>/CLAUDE.md` to decide where new pages go, so each category should have a one-line description.
 
 ## Troubleshooting
 
