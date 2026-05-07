@@ -1,5 +1,5 @@
 ---
-name: init
+name: auto-wiki-init
 description: First-run setup for the project wiki. Asks the user where the wiki should live, elicits free-form capture guidance, writes config to .claude/settings.json, creates the wiki directory tree, and drops the schema/index/log templates.
 disable-model-invocation: true
 ---
@@ -95,7 +95,7 @@ Read `${CLAUDE_PLUGIN_ROOT}/templates/wiki-claude.md` and produce `<wiki-root>/C
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/index.md` and produce `<wiki-root>/index.md` by substituting:
 
-- `<!-- {{category_sections}} -->` — replace with one second-level heading per category, in the user's chosen order. Use a sensible display title (capitalize the first letter of the directory name; turn hyphens/underscores into spaces — e.g., `post-mortems` → `Post mortems`). Under each heading, place `_(none yet)_`. Under the very first heading, instead place `_(none yet — run \`/cc-auto-wiki:compile\` after some captures have accumulated)_` so the hint shows up exactly once.
+- `<!-- {{category_sections}} -->` — replace with one second-level heading per category, in the user's chosen order. Use a sensible display title (capitalize the first letter of the directory name; turn hyphens/underscores into spaces — e.g., `post-mortems` → `Post mortems`). Under each heading, place `_(none yet)_`. Under the very first heading, instead place `_(none yet — run \`/cc-auto-wiki:auto-wiki-compile\` after some captures have accumulated)_` so the hint shows up exactly once.
 
 Copy `${CLAUDE_PLUGIN_ROOT}/templates/log.md` verbatim to `<wiki-root>/log.md`.
 
@@ -116,8 +116,8 @@ Print a concise summary:
 - "Created wiki at `<path>`. Capture guidance and the category layout are editable at `<path>/CLAUDE.md`."
 - "Categories: <comma-separated list>. Add or rename categories later by editing the `## Wiki structure` section of the schema and creating the directories under `<path>/wiki/`."
 - "Auto-capture will fire on `SessionEnd` and `PreCompact` going forward. The first capture will produce a file in `<path>/raw/sessions/`."
-- "Run `/cc-auto-wiki:compile` when you have a few captures and want to integrate them into the wiki proper."
-- "Run `/cc-auto-wiki:ingest` mid-session if you want to capture immediately."
+- "Run `/cc-auto-wiki:auto-wiki-compile` when you have a few captures and want to integrate them into the wiki proper."
+- "Run `/cc-auto-wiki:auto-wiki-ingest` mid-session if you want to capture immediately."
 
 If reconfiguring left behind any pre-existing category directories no longer in the chosen list, name them and tell the user they were preserved so they can decide whether to delete them by hand.
 

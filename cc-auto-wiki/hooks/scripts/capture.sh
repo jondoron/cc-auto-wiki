@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture entry point. Invoked by SessionEnd / PreCompact hooks and by the
-# /cc-auto-wiki:ingest skill. Reads stdin JSON ({transcript_path, session_id,
+# /cc-auto-wiki:auto-wiki-ingest skill. Reads stdin JSON ({transcript_path, session_id,
 # cwd}), composes a prompt, runs `claude -p` headless, and writes a single
 # raw source markdown file to <wiki-root>/raw/sessions/.
 #

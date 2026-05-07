@@ -1,5 +1,5 @@
 ---
-name: compile
+name: auto-wiki-compile
 description: Integrate pending raw sources into the project wiki. Reads each uncompiled source under raw/sessions/, updates or creates wiki pages, maintains cross-references, updates index.md and log.md, and surfaces contradictions and redundancies to the user.
 disable-model-invocation: true
 ---
@@ -18,7 +18,7 @@ WIKI_ROOT="$(cd "$WIKI_ROOT_REL" && pwd)"
 echo "WIKI_ROOT=$WIKI_ROOT"
 ```
 
-If unconfigured, tell the user to run `/cc-auto-wiki:init` and stop.
+If unconfigured, tell the user to run `/cc-auto-wiki:auto-wiki-init` and stop.
 
 ## Execution
 

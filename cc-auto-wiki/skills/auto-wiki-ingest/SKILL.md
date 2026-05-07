@@ -1,5 +1,5 @@
 ---
-name: ingest
+name: auto-wiki-ingest
 description: Manually capture the current conversation as a wiki raw source. Useful mid-session when a decision lands and the user wants it staged immediately rather than waiting for SessionEnd.
 disable-model-invocation: true
 ---
@@ -15,7 +15,7 @@ Run via Bash:
 jq -r '."cc-auto-wiki".root // empty' .claude/settings.json 2>/dev/null
 ```
 
-If the result is empty, tell the user: "The wiki isn't configured for this project yet. Run `/cc-auto-wiki:init` first." and stop.
+If the result is empty, tell the user: "The wiki isn't configured for this project yet. Run `/cc-auto-wiki:auto-wiki-init` first." and stop.
 
 ### 2. Locate the current session's transcript
 
@@ -63,5 +63,5 @@ Tell the user the new filename and offer to read it back if they want to review 
 ## Rules
 
 - **Don't second-guess the capture sub-agent.** Your job is plumbing — find the transcript, hand it off. Editorial choices are governed by `<wiki-root>/CLAUDE.md` Capture guidance.
-- **Don't run `/cc-auto-wiki:compile` automatically afterwards.** Compile is a separate, deliberate step the user invokes when they want to integrate sources into the wiki.
+- **Don't run `/cc-auto-wiki:auto-wiki-compile` automatically afterwards.** Compile is a separate, deliberate step the user invokes when they want to integrate sources into the wiki.
 - **If capture fails silently** (no new file appears), point the user at `$HOME/.claude/cc-auto-wiki.log` and let them debug.
