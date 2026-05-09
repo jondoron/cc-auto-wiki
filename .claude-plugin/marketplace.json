@@ -1,0 +1,14 @@
+{
+  "name": "jondoron",
+  "owner": {
+    "name": "Jonathan Doron"
+  },
+  "description": "Plugins by Jonathan Doron.",
+  "plugins": [
+    {
+      "name": "cc-auto-wiki",
+      "source": "./cc-auto-wiki",
+      "description": "Auto-captures Claude Code conversations as Karpathy-style raw sources, then compiles them into a persistent project wiki on demand."
+    }
+  ]
+}
